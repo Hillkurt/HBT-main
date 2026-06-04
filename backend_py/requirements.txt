@@ -1,0 +1,32 @@
+# ============================================================
+#  requirements.txt — FastAPI Backend Bağımlılıkları
+#  Dijital Yönetim Sistemi — Python Backend
+#
+#  Kurulum için terminalde:
+#    cd backend_py
+#    py -m pip install -r requirements.txt
+# ============================================================
+
+# FastAPI — Python'un en hızlı web framework'ü
+# PDF'de belirtilen teknoloji: Python (FastAPI)
+fastapi>=0.115.0
+
+# Uvicorn — ASGI sunucusu (FastAPI'yi çalıştırmak için gerekli)
+# --reload parametresiyle geliştirme modunda otomatik yenileme yapar
+uvicorn[standard]>=0.32.0
+
+# Python-Multipart — Form verilerini işlemek için (login formu)
+python-multipart>=0.0.12
+
+# Python-Jose — JWT (JSON Web Token) kimlik doğrulama
+# Kullanıcı girişinde token üretmek için kullanılır
+python-jose[cryptography]>=3.3.0
+
+# Passlib — Şifre hashleme kütüphanesi
+# Bcrypt algoritmasıyla şifreleri güvenli saklar
+passlib[bcrypt]>=1.7.4
+
+# Pydantic — Veri doğrulama (FastAPI'ye dahil gelir ama explicit ekledik)
+pydantic>=2.0.0
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0

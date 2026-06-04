@@ -1,0 +1,316 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "hilal.kurt",
+      "password": "1234",
+      "role": "sakin",
+      "name": "Hilal Kurt",
+      "unit": "Blok A / Daire 1",
+      "type": "Mal Sahibi",
+      "email": "hilal.kurt@example.com",
+      "phone": "0532 111 22 33"
+    },
+    {
+      "id": 2,
+      "username": "yonetici",
+      "password": "admin123",
+      "role": "yonetici",
+      "name": "Yönetici",
+      "unit": "Yönetim Ofisi",
+      "type": "Yönetici",
+      "email": "yonetici@dijitalyonetim.com",
+      "phone": "0312 000 00 00"
+    }
+  ],
+  "residents": [
+    {
+      "id": 1,
+      "unit": "Blok A / Daire 1",
+      "name": "Hilal Kurt",
+      "type": "Mal Sahibi",
+      "email": "hilal.kurt@example.com",
+      "phone": "0532 111 22 33",
+      "status": "warning",
+      "dues": 1200,
+      "dueDate": "2026-05-15"
+    },
+    {
+      "id": 2,
+      "unit": "Blok A / Daire 2",
+      "name": "Ayşe Demir",
+      "type": "Kiracı",
+      "email": "ayse.demir@example.com",
+      "phone": "0543 222 33 44",
+      "status": "paid",
+      "dues": 0,
+      "dueDate": "2026-06-15"
+    },
+    {
+      "id": 3,
+      "unit": "Blok B / Daire 1",
+      "name": "Mehmet Öz",
+      "type": "Kiracı",
+      "email": "mehmet.oz@example.com",
+      "phone": "0554 333 44 55",
+      "status": "paid",
+      "dues": 0,
+      "dueDate": "2026-06-15"
+    },
+    {
+      "id": 4,
+      "unit": "Blok B / Daire 2",
+      "name": "Zeynep Kaya",
+      "type": "Mal Sahibi",
+      "email": "zeynep.kaya@example.com",
+      "phone": "0505 444 55 66",
+      "status": "paid",
+      "dues": 0,
+      "dueDate": "2026-06-15"
+    },
+    {
+      "id": 5,
+      "unit": "Blok A / Daire 3",
+      "name": "Can Korkmaz",
+      "type": "Mal Sahibi",
+      "email": "can.korkmaz@example.com",
+      "phone": "0535 555 66 77",
+      "status": "paid",
+      "dues": 0,
+      "dueDate": "2026-06-15"
+    },
+    {
+      "id": 6,
+      "unit": "Blok A / Daire 4",
+      "name": "Fatma Şahin",
+      "type": "Kiracı",
+      "email": "fatma.sahin@example.com",
+      "phone": "0542 666 77 88",
+      "status": "warning",
+      "dues": 2400,
+      "dueDate": "2026-04-15"
+    },
+    {
+      "id": 7,
+      "unit": "Blok B / Daire 3",
+      "name": "Ramazan Öz",
+      "type": "Kiracı",
+      "email": "ramazan.oz@example.com",
+      "phone": "0533 777 88 99",
+      "status": "paid",
+      "dues": 0,
+      "dueDate": "2026-06-15"
+    },
+    {
+      "id": 8,
+      "unit": "Blok B / Daire 4",
+      "name": "Tuğçe Deniz Kaya",
+      "type": "Kiracı",
+      "email": "tugce.kaya@example.com",
+      "phone": "0555 123 45 67",
+      "status": "paid",
+      "dues": 0,
+      "dueDate": "2026-06-15"
+    },
+    {
+      "id": 9,
+      "unit": "Blok C / Daire 1",
+      "name": "Beyza Savaş",
+      "type": "Mal Sahibi",
+      "email": "beyza.savas@example.com",
+      "phone": "0534 987 65 43",
+      "status": "paid",
+      "dues": 0,
+      "dueDate": "2026-06-15"
+    }
+  ],
+  "transactions": [
+    {
+      "id": 1,
+      "date": "2026-01-05",
+      "type": "income",
+      "category": "Aidat",
+      "amount": 12000,
+      "method": "Banka",
+      "description": "Ocak Ayı Aidat Tahsilatları"
+    },
+    {
+      "id": 2,
+      "date": "2026-01-10",
+      "type": "expense",
+      "category": "Personel",
+      "amount": 4000,
+      "method": "Banka",
+      "description": "Kapıcı Maaşı ve SGK"
+    },
+    {
+      "id": 3,
+      "date": "2026-02-05",
+      "type": "income",
+      "category": "Aidat",
+      "amount": 15000,
+      "method": "Banka",
+      "description": "Şubat Ayı Aidat Tahsilatları"
+    },
+    {
+      "id": 4,
+      "date": "2026-02-12",
+      "type": "expense",
+      "category": "Personel",
+      "amount": 4500,
+      "method": "Banka",
+      "description": "Temizlik Personeli Maaş"
+    },
+    {
+      "id": 5,
+      "date": "2026-03-05",
+      "type": "income",
+      "category": "Aidat",
+      "amount": 11000,
+      "method": "Banka",
+      "description": "Mart Ayı Aidat Tahsilatları"
+    },
+    {
+      "id": 6,
+      "date": "2026-04-05",
+      "type": "income",
+      "category": "Aidat",
+      "amount": 18000,
+      "method": "Banka",
+      "description": "Nisan Ayı Aidat Tahsilatları"
+    },
+    {
+      "id": 7,
+      "date": "2026-05-05",
+      "type": "income",
+      "category": "Aidat",
+      "amount": 20000,
+      "method": "Banka",
+      "description": "Mayıs Ayı Aidat Tahsilatları"
+    },
+    {
+      "id": 8,
+      "date": "2026-06-01",
+      "type": "income",
+      "category": "Aidat",
+      "amount": 16000,
+      "method": "Banka",
+      "description": "Haziran Ayı Kısmi Aidat Tahsilatları"
+    }
+  ],
+  "requests": [
+    {
+      "id": 1,
+      "title": "Kapı Otomatiği Arızası",
+      "description": "A Blok ana giriş kapısının otomatiği çalışmıyor.",
+      "category": "Arıza",
+      "priority": "Yüksek",
+      "status": "Tamamlandı",
+      "date": "2026-05-10",
+      "unit": "Blok A / Daire 4",
+      "residentName": "Fatma Şahin"
+    },
+    {
+      "id": 2,
+      "title": "Genel Koridor Temizliği",
+      "description": "B Blok 2. kat koridorlarının temizlenmesi.",
+      "category": "Temizlik",
+      "priority": "Düşük",
+      "status": "İşlemde",
+      "date": "2026-05-28",
+      "unit": "Blok B / Daire 1",
+      "residentName": "Mehmet Öz"
+    },
+    {
+      "id": 3,
+      "title": "Bahçe Aydınlatma Lambası",
+      "description": "Oyun parkının yanındaki lamba yanmıyor.",
+      "category": "Arıza",
+      "priority": "Orta",
+      "status": "Beklemede",
+      "date": "2026-06-02",
+      "unit": "Blok A / Daire 1",
+      "residentName": "Hilal Kurt"
+    },
+    {
+      "id": 4,
+      "title": "Asansör Sarsıntı Yapıyor",
+      "description": "A Blok sağ asansör 3-4. katlar arasında sarsıntı.",
+      "category": "Arıza",
+      "priority": "Yüksek",
+      "status": "Beklemede",
+      "date": "2026-06-03",
+      "unit": "Blok A / Daire 2",
+      "residentName": "Ayşe Demir"
+    }
+  ],
+  "announcements": [
+    {
+      "id": 1,
+      "title": "Planlı Su Kesintisi",
+      "content": "15/06/2026 tarihinde 09:00-17:00 arası su kesintisi yaşanacaktır.",
+      "category": "Acil",
+      "priority": "Yüksek",
+      "date": "2026-06-02"
+    },
+    {
+      "id": 2,
+      "title": "Dış Cephe Boya Anketi",
+      "content": "Cephe boyası renk seçimi anketi yönetim panosuna asılmıştır.",
+      "category": "Genel",
+      "priority": "Normal",
+      "date": "2026-06-01"
+    },
+    {
+      "id": 3,
+      "title": "Ortak Alan Kullanım Kuralları",
+      "content": "Havuz ve spor salonu saatleri 08:00-22:00 olarak güncellendi.",
+      "category": "Genel",
+      "priority": "Normal",
+      "date": "2026-05-25"
+    },
+    {
+      "id": 4,
+      "title": "Aidat Ödemeleri Hakkında",
+      "content": "Gecikmiş aidat borçlarının ödenmesi için son tarih yaklaşıyor.",
+      "category": "Finansal",
+      "priority": "Yüksek",
+      "date": "2026-05-20"
+    }
+  ],
+  "reservations": [
+    {
+      "id": 1,
+      "facility": "Spor Salonu",
+      "date": "2026-06-07",
+      "timeSlot": "10:00 - 12:00",
+      "unit": "Blok A / Daire 1",
+      "residentName": "Hilal Kurt"
+    },
+    {
+      "id": 2,
+      "facility": "Misafir Otoparkı",
+      "date": "2026-06-07",
+      "timeSlot": "14:00 - 18:00",
+      "unit": "Blok B / Daire 2",
+      "residentName": "Zeynep Kaya"
+    }
+  ],
+  "logs": [
+    {
+      "id": 1780595937258,
+      "time": "2026-06-04 20:58",
+      "message": "Yönetici (yonetici) sisteme giriş yaptı."
+    },
+    {
+      "id": 1,
+      "time": "2026-06-03 14:10",
+      "message": "Sistem başlatıldı."
+    },
+    {
+      "id": 2,
+      "time": "2026-06-03 14:20",
+      "message": "Backend sunucusu devreye alındı."
+    }
+  ]
+}

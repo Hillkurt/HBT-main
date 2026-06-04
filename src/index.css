@@ -1,0 +1,291 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════
+   TASARIM SİSTEMİ – CSS DEĞİŞKENLERİ
+   ═══════════════════════════════════════════════════════════ */
+:root {
+  /* Ana Renkler */
+  --primary:       #1A237E;
+  --primary-light: #3949ab;
+  --accent:        #2563eb;
+  --accent-soft:   #eff6ff;
+
+  /* Metin Renkleri — okunabilirlik için koyu tonlar */
+  --text-primary:   #1e2a3b;   /* Ana başlıklar */
+  --text-secondary: #374151;   /* Normal metin */
+  --text-muted:     #6b7280;   /* Yardımcı metin */
+  --text-light:     #9ca3af;   /* Çok soluk (sadece dekoratif) */
+
+  /* Arkaplan Renkleri */
+  --bg-page:   #F4F7FE;
+  --bg-card:   #ffffff;
+  --bg-subtle: #f9fafb;
+
+  /* Kenarlık */
+  --border-light: #e5e7eb;
+  --border:       #d1d5db;
+
+  /* Durum Renkleri */
+  --success: #16a34a;
+  --warning: #d97706;
+  --danger:  #dc2626;
+  --info:    #2563eb;
+
+  /* Gölge */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow:    0 4px 12px rgba(0,0,0,0.10);
+}
+
+/* Koyu Tema (Dark Mode) Renkleri */
+.dark {
+  /* Ana Renkler - Karanlık modda da lacivert kalabilir veya daha koyu olabilir */
+  --primary:       #0f172a;
+  --primary-light: #1e293b;
+  --accent:        #3b82f6;
+  --accent-soft:   #1e3a8a;
+
+  /* Metin Renkleri — okunabilirlik için açık tonlar */
+  --text-primary:   #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted:     #94a3b8;
+  --text-light:     #64748b;
+
+  /* Arkaplan Renkleri */
+  --bg-page:   #0f172a;
+  --bg-card:   #1f2d42;
+  --bg-subtle: #334155;
+
+  /* Kenarlık */
+  --border-light: #334155;
+  --border:       #475569;
+
+  /* Gölge */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5);
+  --shadow:    0 4px 12px rgba(0,0,0,0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TEMEL STİLLER
+   ═══════════════════════════════════════════════════════════ */
+@layer base {
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    color: var(--text-primary);
+    font-weight: 700;
+  }
+
+  p {
+    color: var(--text-secondary);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   KART BİLEŞENLERİ
+   ═══════════════════════════════════════════════════════════ */
+
+/* Standart beyaz kart */
+.card {
+  background: var(--bg-card);
+  border-radius: 1rem;
+  border: 1px solid var(--border-light);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Gradyan birincil kart (mavi) */
+.card-primary {
+  background: linear-gradient(135deg, var(--primary) 0%, #3949ab 100%);
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(26,35,126,0.25);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SAYFA BAŞLIĞI
+   ═══════════════════════════════════════════════════════════ */
+.page-header {
+  margin-bottom: 0.5rem;
+}
+
+.page-header h2 {
+  font-size: 1.375rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+.page-header p {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BUTONLAR
+   ═══════════════════════════════════════════════════════════ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.625rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+  outline: none;
+}
+
+.btn-accent {
+  background: var(--accent);
+  color: white;
+}
+.btn-accent:hover { background: #1d4ed8; }
+
+.btn-outline {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+}
+.btn-outline:hover { background: var(--bg-subtle); }
+
+/* ═══════════════════════════════════════════════════════════
+   ROZETLER (BADGE)
+   ═══════════════════════════════════════════════════════════ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.badge-success { background: #dcfce7; color: #15803d; }
+.badge-warning { background: #fef9c3; color: #a16207; }
+.badge-danger  { background: #fee2e2; color: #b91c1c; }
+.badge-info    { background: #dbeafe; color: #1d4ed8; }
+.badge-gray    { background: #f3f4f6; color: #4b5563; }
+
+/* ═══════════════════════════════════════════════════════════
+   FORM ELEMANLARI (INPUT / SELECT / TEXTAREA)
+   ═══════════════════════════════════════════════════════════ */
+.input {
+  width: 100%;
+  font-size: 0.8125rem;
+  border: 1px solid var(--border);
+  border-radius: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input:focus { border-color: var(--accent); }
+
+/* ═══════════════════════════════════════════════════════════
+   DURUM NOKTALARI
+   ═══════════════════════════════════════════════════════════ */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.status-dot.active   { background: var(--success); }
+.status-dot.pending  { background: var(--warning); }
+.status-dot.inactive { background: #9ca3af; }
+
+/* ═══════════════════════════════════════════════════════════
+   MODAL
+   ═══════════════════════════════════════════════════════════ */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-box {
+  background: var(--bg-card);
+  border-radius: 1.25rem;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+  position: relative;
+  width: 100%;
+  animation: scaleIn 0.2s ease-out;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AYIRICI
+   ═══════════════════════════════════════════════════════════ */
+.divider {
+  height: 1px;
+  background: var(--border-light);
+  margin: 0.75rem 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   BOŞ DURUM
+   ═══════════════════════════════════════════════════════════ */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.empty-state svg { opacity: 0.35; }
+
+/* ═══════════════════════════════════════════════════════════
+   ANİMASYONLAR
+   ═══════════════════════════════════════════════════════════ */
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up { animation: fadeInUp 0.4s ease-out both; }
+.animate-scale-in   { animation: scaleIn 0.3s ease-out both; }
+
+/* ═══════════════════════════════════════════════════════════
+   GLASS KARTI
+   ═══════════════════════════════════════════════════════════ */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   YARDIMCI: STAGGER ANİMASYON
+   ═══════════════════════════════════════════════════════════ */
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.10s; }
+.stagger > *:nth-child(3) { animation-delay: 0.15s; }
+.stagger > *:nth-child(4) { animation-delay: 0.20s; }
