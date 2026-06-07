@@ -27,6 +27,6 @@ py -m pip install -r requirements.txt >nul 2>&1
 echo.
 echo [BASARILI] Sunucu baslatiliyor... (http://localhost:8000)
 echo.
-py -m uvicorn main:app --port 8000 --reload
+py -m uvicorn main:app --port 8000 --reload --env-file .env
 
 pause
