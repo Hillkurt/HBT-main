@@ -173,7 +173,7 @@ export default function Talepler() {
           {statuses.map(status => {
             const statusReqs = filteredRequests.filter(r => r.status === status);
             return (
-              <div key={status} className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border-light)] flex flex-col h-[600px]">
+              <div key={status} className="bg-[var(--bg-card)] rounded-2xl p-4 border border-[var(--border-light)] flex flex-col max-h-[400px] md:h-[600px] md:max-h-none">
                 {/* Sütun Başlığı */}
                 <div className="flex justify-between items-center mb-4">
                   <div className="flex items-center gap-2">

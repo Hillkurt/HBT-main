@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
@@ -32,21 +32,25 @@ function GlobalToast() {
 
 // Tüm sayfaların iskeletini (Layout) oluşturan bileşen
 export default function Layout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     // Ekranın tamamını kaplayan, arka plan rengine sahip ana kapsayıcı
     <div className="flex h-screen bg-[var(--bg-page)] overflow-hidden transition-colors duration-300">
       
-      {/* Sol taraftaki sabit navigasyon menüsü */}
-      <Sidebar />
+      {/* Sol taraftaki navigasyon menüsü — mobilde açılıp kapanır */}
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
-      {/* Sağ taraftaki ana içerik alanı (Sidebar'ın genişliği kadar soldan boşluk bırakır: ml-64) */}
-      <div className="flex-1 flex flex-col ml-64 overflow-hidden">
+      {/* Sağ taraftaki ana içerik alanı */}
+      {/* Desktop: ml-64 (sidebar genişliği kadar boşluk) */}
+      {/* Mobil: ml-0 (sidebar overlay olarak açılır) */}
+      <div className="flex-1 flex flex-col ml-0 lg:ml-64 overflow-hidden">
         
         {/* Üst bilgi çubuğu (Kullanıcı profili, bildirimler vb.) */}
-        <Header />
+        <Header onMenuClick={() => setSidebarOpen(true)} />
         
         {/* Sayfaların değişen içeriklerinin yüklendiği ana kaydırılabilir alan */}
-        <main className="flex-1 overflow-y-auto p-6">
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6">
           <div className="max-w-7xl mx-auto">
             {/* React Router Outlet: Geçerli url'ye göre değişen sayfayı buraya çizer */}
             <Outlet />
@@ -59,4 +63,3 @@ export default function Layout() {
     </div>
   );
 }
-

@@ -289,3 +289,85 @@
 .stagger > *:nth-child(2) { animation-delay: 0.10s; }
 .stagger > *:nth-child(3) { animation-delay: 0.15s; }
 .stagger > *:nth-child(4) { animation-delay: 0.20s; }
+
+/* ═══════════════════════════════════════════════════════════
+   MOBİL UYUMLULUK (RESPONSIVE)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Safe Area Desteği — iPhone notch ve alt bar */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Mobil Modal Düzenlemeleri */
+@media (max-width: 640px) {
+  .modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-box {
+    border-radius: 1.5rem 1.5rem 0 0;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+  }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(100%); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Touch-Friendly Butonlar — mobilde minimum 44px */
+@media (max-width: 640px) {
+  .btn {
+    min-height: 40px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+  }
+
+  .input {
+    font-size: 1rem; /* iOS zoom engellemesi */
+    padding: 0.625rem 0.875rem;
+  }
+
+  select.input, input.input, textarea.input {
+    font-size: 1rem;
+  }
+}
+
+/* Mobil Sayfa Başlığı */
+@media (max-width: 640px) {
+  .page-header h2 {
+    font-size: 1.125rem;
+  }
+
+  .page-header p {
+    font-size: 0.6875rem;
+  }
+}
+
+/* Tablo Mobil Scroll Desteği */
+@media (max-width: 768px) {
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Tablo hücreleri — mobilde wrap olmasın */
+  table th, table td {
+    white-space: nowrap;
+  }
+}
+
+/* Toast — mobilde alt ortaya taşır */
+@media (max-width: 640px) {
+  .fixed.bottom-6.right-6 {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+    max-width: none;
+  }
+}

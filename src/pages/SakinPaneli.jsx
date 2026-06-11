@@ -265,7 +265,7 @@ export default function SakinPaneli() {
       </div>
 
       {/* Alt Grid: 4 kolon */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-5 stagger">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 stagger">
 
         {/* Kart 4: Sakin Bilgileri */}
         <div className="card p-6 flex flex-col items-center justify-center text-center animate-fade-in-up">

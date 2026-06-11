@@ -182,7 +182,7 @@ export default function YoneticiPaneli() {
           {/* Hızlı Erişim Linkleri */}
           <div className="bg-[var(--bg-card)] p-6 rounded-2xl shadow-sm border border-[var(--border-light)]">
             <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4">Hızlı Erişim & Yönetim Alanları</h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
               <button
                 onClick={() => navigate('/residents-list')}
                 className="p-4 border border-[var(--border-light)] rounded-xl hover:bg-[var(--bg-subtle)] text-center space-y-2 transition-all"
