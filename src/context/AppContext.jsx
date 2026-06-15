@@ -200,7 +200,7 @@ export const AppProvider = ({ children }) => {
   });
 
   const [transactions, setTransactions] = useState(() => {
-    const local = localStorage.getItem('dm_transactions');
+    const local = localStorage.getItem('dm_transactions_v2');
     return local ? JSON.parse(local) : initialTransactions;
   });
 
@@ -256,17 +256,17 @@ export const AppProvider = ({ children }) => {
 
   // ─── Kimlik Doğrulama State ──────────────────────────────────────────
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('dm_auth') === 'true';
+    return sessionStorage.getItem('dm_auth') === 'true';
   });
 
   // Rol Yönetimi: 'sakin' (Ahmet Yılmaz) ya da 'yonetici'
   const [currentRole, setCurrentRole] = useState(() => {
-    const local = localStorage.getItem('dm_current_role');
+    const local = sessionStorage.getItem('dm_current_role');
     return local ? local : 'sakin';
   });
 
   const [currentUser, setCurrentUser] = useState(() => {
-    const saved = localStorage.getItem('dm_current_user');
+    const saved = sessionStorage.getItem('dm_current_user');
     return saved ? JSON.parse(saved) : {
       id: 1,
       unit: 'Blok A / Daire 1',
@@ -293,14 +293,14 @@ export const AppProvider = ({ children }) => {
             email: result.user.email,
             phone: result.user.phone,
           };
-          // Token'ı localStorage'a kaydet (gerçek uygulamada güvenli storage kullanılır)
-          localStorage.setItem('dm_token', result.token);
+          // Token'ı sessionStorage'a kaydet (gerçek uygulamada güvenli storage kullanılır)
+          sessionStorage.setItem('dm_token', result.token);
           setIsAuthenticated(true);
           setCurrentRole(result.user.role);
           setCurrentUser(userInfo);
-          localStorage.setItem('dm_auth', 'true');
-          localStorage.setItem('dm_current_role', result.user.role);
-          localStorage.setItem('dm_current_user', JSON.stringify(userInfo));
+          sessionStorage.setItem('dm_auth', 'true');
+          sessionStorage.setItem('dm_current_role', result.user.role);
+          sessionStorage.setItem('dm_current_user', JSON.stringify(userInfo));
           return { success: true, role: result.user.role };
         }
         return { success: false, message: result.message };
@@ -323,9 +323,9 @@ export const AppProvider = ({ children }) => {
     setIsAuthenticated(true);
     setCurrentRole(user.role);
     setCurrentUser(userInfo);
-    localStorage.setItem('dm_auth', 'true');
-    localStorage.setItem('dm_current_role', user.role);
-    localStorage.setItem('dm_current_user', JSON.stringify(userInfo));
+    sessionStorage.setItem('dm_auth', 'true');
+    sessionStorage.setItem('dm_current_role', user.role);
+    sessionStorage.setItem('dm_current_user', JSON.stringify(userInfo));
     return { success: true, role: user.role };
   };
 
@@ -337,10 +337,10 @@ export const AppProvider = ({ children }) => {
     }
     setIsAuthenticated(false);
     setCurrentRole('sakin');
-    localStorage.removeItem('dm_auth');
-    localStorage.removeItem('dm_current_role');
-    localStorage.removeItem('dm_current_user');
-    localStorage.removeItem('dm_token');
+    sessionStorage.removeItem('dm_auth');
+    sessionStorage.removeItem('dm_current_role');
+    sessionStorage.removeItem('dm_current_user');
+    sessionStorage.removeItem('dm_token');
   };
 
   // Global Toast / Bildirim Sistemi
@@ -375,7 +375,7 @@ export const AppProvider = ({ children }) => {
   }, [residents]);
 
   useEffect(() => {
-    localStorage.setItem('dm_transactions', JSON.stringify(transactions));
+    localStorage.setItem('dm_transactions_v2', JSON.stringify(transactions));
   }, [transactions]);
 
   useEffect(() => {
@@ -395,7 +395,7 @@ export const AppProvider = ({ children }) => {
   }, [logs]);
 
   useEffect(() => {
-    localStorage.setItem('dm_current_role', currentRole);
+    sessionStorage.setItem('dm_current_role', currentRole);
   }, [currentRole]);
 
   // Log ekleme fonksiyonu

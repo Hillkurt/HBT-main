@@ -7,7 +7,7 @@ import { AppContext } from '../context/AppContext';
 
 export default function SakinPaneli() {
   const {
-    residents, requests, announcements, reservations, currentUser, packages,
+    residents, requests, announcements, reservations, currentUser, packages, transactions,
     payResidentDues, addRequest, addReservation, cancelReservation,
     computeLateInterest, showNotification
   } = useContext(AppContext);
@@ -47,6 +47,11 @@ export default function SakinPaneli() {
   const userRequests = requests.filter(r => r.residentName === currentUser.name || r.unit === currentUser.unit);
   const userReservations = reservations.filter(r => r.residentName === currentUser.name || r.unit === currentUser.unit);
   const userPackages = packages.filter(p => p.residentName === currentUser.name || p.unit === currentUser.unit);
+
+  const buildingExpenses = (transactions || [])
+    .filter(t => t.type === 'expense')
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 5);
 
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
@@ -417,46 +422,43 @@ export default function SakinPaneli() {
           </p>
         </div>
 
-        {/* Kart 5: Kargo Takip (Küçültülmüş) */}
-        <div className="card p-5 flex flex-col animate-fade-in-up" style={{ minHeight: '220px' }}>
+        {/* Kart 5: Site Giderleri */}
+        <div className="card p-5 md:col-span-2 flex flex-col animate-fade-in-up" style={{ minHeight: '220px' }}>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Kargolarım</h3>
+            <div className="flex items-center gap-2">
+              <TrendingUp size={15} className="text-red-500" />
+              <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Son Site Giderleri</h3>
+            </div>
+            <span className="text-[10px] bg-red-100 text-red-600 px-2.5 py-1 rounded-full font-bold">Tüm Giderler</span>
           </div>
-          <div className="space-y-2 flex-1 overflow-y-auto">
-            {userPackages.length === 0 ? (
+          <div className="flex-1 overflow-x-auto pr-1">
+            {buildingExpenses.length === 0 ? (
               <div className="empty-state h-full">
-                <Check size={20} className="mb-1" />
-                <p>Kargo yok.</p>
+                <p>Kayıtlı gider bulunmuyor.</p>
               </div>
             ) : (
-              userPackages.map(pkg => (
-                <div key={pkg.id} className="p-2 rounded-lg border border-[var(--border-light)] text-[10px]">
-                  <p className="font-bold">{pkg.carrier}</p>
-                  <p style={{ color: 'var(--text-muted)' }}>{pkg.status}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
-        {/* Kart 6: Rezervasyonlar (Küçültülmüş) */}
-        <div className="card p-5 flex flex-col animate-fade-in-up" style={{ minHeight: '220px' }}>
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Rezervasyon</h3>
-          </div>
-          <div className="space-y-2 flex-1 overflow-y-auto">
-            {userReservations.length === 0 ? (
-              <div className="empty-state h-full">
-                <Calendar size={20} className="mb-1" />
-                <p>Rezervasyon yok.</p>
-              </div>
-            ) : (
-              userReservations.map(res => (
-                <div key={res.id} className="p-2 rounded-lg border border-[var(--border-light)] text-[10px]">
-                  <p className="font-bold">{res.facility}</p>
-                  <p style={{ color: 'var(--text-muted)' }}>{res.date}</p>
-                </div>
-              ))
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-[var(--border-light)] text-[10px] uppercase text-[var(--text-muted)] tracking-wider">
+                    <th className="py-2 pl-2">Tarih</th>
+                    <th className="py-2">Kategori</th>
+                    <th className="py-2">Açıklama</th>
+                    <th className="py-2 text-right pr-2">Tutar</th>
+                  </tr>
+                </thead>
+                <tbody className="text-xs text-[var(--text-primary)]">
+                  {buildingExpenses.map(expense => (
+                    <tr key={expense.id} className="border-b border-[var(--border-light)] last:border-0 hover:bg-[var(--bg-subtle)] transition-colors">
+                      <td className="py-2.5 pl-2 whitespace-nowrap text-[var(--text-secondary)]">{expense.date}</td>
+                      <td className="py-2.5 font-semibold">{expense.category}</td>
+                      <td className="py-2.5 text-[11px] text-[var(--text-secondary)] truncate max-w-[150px]">{expense.description}</td>
+                      <td className="py-2.5 text-right pr-2 font-bold text-red-500 whitespace-nowrap">
+                        -{Number(expense.amount).toLocaleString('tr-TR')} TL
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         </div>
