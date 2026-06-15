@@ -131,6 +131,28 @@ const initialLogs = [
   { id: 2, time: '2026-06-03 14:20', message: 'Yönetici Ahmet Yılmaz sisteme giriş yaptı.' },
 ];
 
+// Başlangıç Anketler
+const initialSurveys = [
+  { 
+    id: 1, 
+    question: 'Bina dış cephesi ne renk olsun?', 
+    options: [
+      { id: 'opt1', text: 'Koyu Gri / Lacivert', votes: 12 },
+      { id: 'opt2', text: 'Toprak Tonları', votes: 8 },
+      { id: 'opt3', text: 'Beyaz / Açık Gri', votes: 5 }
+    ],
+    totalVotes: 25,
+    status: 'Aktif',
+    votedUsers: [2, 3, 4] 
+  }
+];
+
+// Başlangıç Kargolar
+const initialPackages = [
+  { id: 1, residentName: 'Hilal Kurt', unit: 'Blok A / Daire 1', carrier: 'Yurtiçi Kargo', arrivalTime: '14:30', status: 'Güvenlikte Bekliyor', description: 'Trendyol Paketi' },
+  { id: 2, residentName: 'Ahmet Yılmaz', unit: 'Blok B / Daire 2', carrier: 'MNG Kargo', arrivalTime: '10:15', status: 'Teslim Edildi', description: 'Amazon Kolisi' },
+];
+
 export const AppProvider = ({ children }) => {
   // ── Tema Durumu (Karanlık/Aydınlık Mod) ──────────────────────────────
   const [isDarkMode, setIsDarkMode] = useState(() => {
@@ -200,6 +222,16 @@ export const AppProvider = ({ children }) => {
   const [logs, setLogs] = useState(() => {
     const local = localStorage.getItem('dm_logs');
     return local ? JSON.parse(local) : initialLogs;
+  });
+
+  const [surveys, setSurveys] = useState(() => {
+    const local = localStorage.getItem('dm_surveys');
+    return local ? JSON.parse(local) : initialSurveys;
+  });
+
+  const [packages, setPackages] = useState(() => {
+    const local = localStorage.getItem('dm_packages');
+    return local ? JSON.parse(local) : initialPackages;
   });
 
   // ── Backend sağlık kontrolü: uygulama ilk açıldığında bir kez çalışır ──
@@ -502,6 +534,30 @@ export const AppProvider = ({ children }) => {
     addLog(`Yeni duyuru yayınlandı: "${newAnn.title}"`);
   };
 
+  // Anket Oylama İşlemi
+  const voteSurvey = (surveyId, optionId) => {
+    setSurveys(prev => {
+      const newSurveys = prev.map(s => {
+        if (s.id === surveyId) {
+          const updatedOptions = s.options.map(o => 
+            o.id === optionId ? { ...o, votes: o.votes + 1 } : o
+          );
+          return {
+            ...s,
+            options: updatedOptions,
+            totalVotes: s.totalVotes + 1,
+            votedUsers: [...s.votedUsers, currentUser.id]
+          };
+        }
+        return s;
+      });
+      localStorage.setItem('dm_surveys', JSON.stringify(newSurveys));
+      return newSurveys;
+    });
+    addLog(`Ankete oy kullanıldı.`);
+    showNotification('Oyunuz başarıyla kaydedildi!', 'success');
+  };
+
   // Toplu Aidat Borçlandırması Yap (Yönetici)
   const generateMonthlyDues = (amount = 1200) => {
     const newDueDate = getDefaultDueDate();
@@ -548,6 +604,9 @@ export const AppProvider = ({ children }) => {
         addReservation,
         cancelReservation,
         addAnnouncement,
+        surveys,
+        voteSurvey,
+        packages,
         generateMonthlyDues,
         sendDuesReminder,
         // Gecikme faizi

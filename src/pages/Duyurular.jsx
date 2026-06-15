@@ -1,12 +1,14 @@
 import React, { useContext, useState } from 'react';
 import { 
   Bell, Megaphone, Search, Filter, Calendar, AlertTriangle, 
-  X, Check, Plus, Eye 
+  X, Check, Plus, Eye, BarChart2, CheckCircle
 } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 
 export default function Duyurular() {
-  const { announcements, addAnnouncement, currentRole } = useContext(AppContext);
+  const { announcements, addAnnouncement, surveys, voteSurvey, currentUser, currentRole } = useContext(AppContext);
+
+  const [activeTab, setActiveTab] = useState('Duyurular');
 
   // Filtre State'leri
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,18 +63,96 @@ export default function Duyurular() {
       {/* Üst Başlık */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--text-primary)]">Duyurular & Bildirimler</h2>
-          <p className="text-xs text-[var(--text-muted)]">Yönetim tarafından yayınlanan resmi duyuru, bakım ve toplantı kararlarını takip edin</p>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)]">Duyurular & Anketler</h2>
+          <p className="text-xs text-[var(--text-muted)]">Yönetim duyurularını takip edin ve site kararlarında oy kullanın.</p>
         </div>
-        {currentRole === 'yonetici' && (
-          <button 
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 bg-[#1A237E] hover:bg-[#151c66] text-white font-medium text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors"
-          >
-            <Plus size={16} /> Yeni Duyuru Yayınla
-          </button>
-        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex bg-[var(--bg-card)] border border-[var(--border-light)] rounded-xl p-1 shadow-sm">
+            <button 
+              onClick={() => setActiveTab('Duyurular')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors ${activeTab === 'Duyurular' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'}`}
+            >
+              Duyurular
+            </button>
+            <button 
+              onClick={() => setActiveTab('Anketler')}
+              className={`px-4 py-2 text-xs font-bold rounded-lg transition-colors flex items-center gap-1 ${activeTab === 'Anketler' ? 'bg-blue-600 text-white shadow-sm' : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]'}`}
+            >
+              <BarChart2 size={14}/> Anketler
+            </button>
+          </div>
+          {currentRole === 'yonetici' && activeTab === 'Duyurular' && (
+            <button 
+              onClick={() => setShowAddModal(true)}
+              className="flex items-center gap-2 bg-[#1A237E] hover:bg-[#151c66] text-white font-medium text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors"
+            >
+              <Plus size={16} /> Yeni Duyuru
+            </button>
+          )}
+        </div>
       </div>
+
+      {activeTab === 'Anketler' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-fade-in-up">
+          {surveys.length === 0 ? (
+            <div className="md:col-span-2 text-center py-16 bg-[var(--bg-card)] border border-[var(--border-light)] rounded-2xl text-[var(--text-muted)] italic">
+              Aktif anket bulunmuyor.
+            </div>
+          ) : (
+            surveys.map(survey => {
+              const hasVoted = survey.votedUsers.includes(currentUser.id);
+              return (
+                <div key={survey.id} className="bg-[var(--bg-card)] rounded-2xl p-6 border border-[var(--border-light)] shadow-sm flex flex-col justify-between relative overflow-hidden group">
+                  <div className="flex justify-between items-center mb-4">
+                    <span className="text-[9px] font-bold px-2 py-0.5 bg-blue-50 text-blue-700 border border-blue-100 rounded-md uppercase tracking-wide">
+                      {survey.status}
+                    </span>
+                    <span className="text-[10px] text-[var(--text-muted)] font-semibold">{survey.totalVotes} Oy</span>
+                  </div>
+                  <h3 className="text-sm font-bold text-[var(--text-primary)] mb-5 leading-snug">{survey.question}</h3>
+                  <div className="space-y-3 relative z-10">
+                    {survey.options.map(opt => {
+                      const percent = survey.totalVotes === 0 ? 0 : Math.round((opt.votes / survey.totalVotes) * 100);
+                      return (
+                        <div key={opt.id} className="relative">
+                          {hasVoted ? (
+                            <div className="w-full bg-[var(--bg-page)] rounded-xl overflow-hidden border border-[var(--border-light)] relative p-3">
+                              <div className="absolute top-0 left-0 h-full bg-blue-100 transition-all duration-1000 ease-out" style={{ width: `${percent}%` }}></div>
+                              <div className="relative z-10 flex justify-between items-center text-xs font-semibold">
+                                <span className="text-[var(--text-primary)]">{opt.text}</span>
+                                <span className="text-blue-700">{percent}%</span>
+                              </div>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                if(window.confirm(`"${opt.text}" seçeneğine oy vermek istediğinize emin misiniz?`)) {
+                                  voteSurvey(survey.id, opt.id);
+                                }
+                              }}
+                              className="w-full text-left text-xs font-bold p-3 border border-[var(--border-light)] hover:border-blue-500 hover:bg-blue-50 rounded-xl transition-colors text-[var(--text-secondary)] hover:text-blue-700"
+                            >
+                              {opt.text}
+                            </button>
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {hasVoted && (
+                    <div className="mt-5 pt-3 border-t border-[var(--border-light)] flex items-center gap-1.5 text-green-600 text-[10px] font-bold">
+                      <CheckCircle size={14}/> Bu ankete oy verdiniz.
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {activeTab === 'Duyurular' && (
+        <>
 
       {/* Arama ve Kategori Filtreleme Paneli */}
       <div className="bg-[var(--bg-card)] p-4 rounded-2xl shadow-sm border border-[var(--border-light)] flex flex-col md:flex-row gap-4 items-center justify-between">
@@ -163,6 +243,8 @@ export default function Duyurular() {
           ))
         )}
       </div>
+      </>
+      )}
 
       {/* MODAL 1: Duyuru Yayınlama Modalı */}
       {showAddModal && (

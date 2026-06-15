@@ -5,6 +5,7 @@ import {
 } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell, PieChart, Pie, Legend } from 'recharts';
 
 export default function YoneticiPaneli() {
   const {
@@ -175,6 +176,52 @@ export default function YoneticiPaneli() {
                 >
                   Uyarı Gönder
                 </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Yeni Eklenen Grafikler (Faz 2) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="bg-[var(--bg-card)] p-6 rounded-2xl shadow-sm border border-[var(--border-light)]">
+              <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4">Tahsilat Durumu</h3>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={[
+                        { name: 'Ödenen', value: residents.length - unpaidCount, color: '#10b981' },
+                        { name: 'Bekleyen', value: unpaidCount, color: '#f43f5e' }
+                      ]}
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      <Cell fill="#10b981" />
+                      <Cell fill="#f43f5e" />
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            <div className="bg-[var(--bg-card)] p-6 rounded-2xl shadow-sm border border-[var(--border-light)]">
+              <h3 className="text-sm font-bold text-[var(--text-primary)] mb-4">Aylık Finansal Özet</h3>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={[
+                    { name: 'Nis', Gelir: 18000, Gider: 9000 },
+                    { name: 'May', Gelir: 20000, Gider: 11000 },
+                    { name: 'Haz', Gelir: 16000, Gider: 13000 }
+                  ]}>
+                    <XAxis dataKey="name" fontSize={10} axisLine={false} tickLine={false} />
+                    <Tooltip cursor={{fill: 'var(--bg-subtle)'}} contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                    <Bar dataKey="Gelir" fill="#3b82f6" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="Gider" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={20} />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </div>
           </div>

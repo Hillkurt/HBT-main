@@ -1,13 +1,13 @@
 import React, { useContext, useState } from 'react';
 import {
   ChevronRight, Wrench, Check, AlertTriangle, X, Trash2,
-  CreditCard, Calendar, Home, Bell, Plus, Clock, TrendingUp
+  CreditCard, Calendar, Home, Bell, Plus, Clock, TrendingUp, QrCode
 } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 
 export default function SakinPaneli() {
   const {
-    residents, requests, announcements, reservations, currentUser,
+    residents, requests, announcements, reservations, currentUser, packages,
     payResidentDues, addRequest, addReservation, cancelReservation,
     computeLateInterest, showNotification
   } = useContext(AppContext);
@@ -46,6 +46,7 @@ export default function SakinPaneli() {
 
   const userRequests = requests.filter(r => r.residentName === currentUser.name || r.unit === currentUser.unit);
   const userReservations = reservations.filter(r => r.residentName === currentUser.name || r.unit === currentUser.unit);
+  const userPackages = packages.filter(p => p.residentName === currentUser.name || p.unit === currentUser.unit);
 
   const handlePaymentSubmit = (e) => {
     e.preventDefault();
@@ -264,6 +265,102 @@ export default function SakinPaneli() {
         </div>
       </div>
 
+      {/* 2. Satır Grid: 3 kolonlu (Kargo, Rezervasyon, vb.) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5 stagger">
+        {/* Kargo ve Teslimat Takibi */}
+        <div className="card p-5 flex flex-col animate-fade-in-up md:col-span-1" style={{ minHeight: '220px' }}>
+          <div className="flex justify-between items-center mb-4">
+            <div className="flex items-center gap-2">
+              <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+              </div>
+              <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Kargolarım</h3>
+            </div>
+          </div>
+          <div className="space-y-2.5 overflow-y-auto flex-1">
+            {userPackages.length === 0 ? (
+              <div className="empty-state h-full flex flex-col items-center justify-center">
+                <Check size={28} className="mb-2 opacity-50" />
+                <p>Bekleyen kargonuz bulunmuyor.</p>
+              </div>
+            ) : (
+              userPackages.map(pkg => (
+                <div
+                  key={pkg.id}
+                  className="p-3 rounded-xl border border-[var(--border-light)] bg-[var(--bg-page)] relative overflow-hidden group"
+                >
+                  <div className="absolute left-0 top-0 bottom-0 w-1 bg-indigo-500"></div>
+                  <div className="flex justify-between items-start mb-1.5 pl-2">
+                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">{pkg.carrier}</span>
+                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${pkg.status === 'Teslim Edildi' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
+                      {pkg.status}
+                    </span>
+                  </div>
+                  <div className="pl-2">
+                    <p className="text-xs font-semibold text-[var(--text-primary)]">{pkg.description}</p>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-1 flex items-center gap-1">
+                      <Clock size={10} /> Teslim Saati: {pkg.arrivalTime}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Kart 5: Rezervasyonlar */}
+        <div className="card p-5 md:col-span-2 flex flex-col animate-fade-in-up">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Ortak Alan Rezervasyonlarım</h3>
+              <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Spor salonu, otopark, toplantı odası</p>
+            </div>
+            <button
+              onClick={() => setShowReserveModal(true)}
+              className="btn"
+              style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
+            >
+              <Plus size={13} /> Rezervasyon Yap
+            </button>
+          </div>
+          <div className="space-y-2.5 overflow-y-auto flex-1">
+            {userReservations.length === 0 ? (
+              <div className="empty-state h-full flex flex-col items-center justify-center">
+                <Calendar size={28} className="mb-2 opacity-50" />
+                <p>Aktif rezervasyonunuz bulunmuyor.</p>
+              </div>
+            ) : (
+              userReservations.map(res => (
+                <div
+                  key={res.id}
+                  className="flex items-center justify-between p-3 rounded-xl group transition-all"
+                  style={{ background: 'var(--bg-page)' }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-blue-50 text-blue-500">
+                      <Calendar size={18} />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{res.facility}</p>
+                      <p className="text-[10px] flex items-center gap-1 mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                        <Clock size={10} /> {res.date} | {res.timeSlot}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => cancelReservation(res.id)}
+                    className="p-2 rounded-lg text-red-500 opacity-0 group-hover:opacity-100 hover:bg-red-50 transition-all"
+                    title="İptal Et"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Alt Grid: 4 kolon */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5 stagger">
 
@@ -287,162 +384,198 @@ export default function SakinPaneli() {
           </div>
         </div>
 
-        {/* Kart 5: Rezervasyonlar */}
-        <div className="card p-5 md:col-span-2 flex flex-col animate-fade-in-up">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Ortak Alan Rezervasyonlarım</h3>
-              <p className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>Spor salonu, otopark, toplantı odası</p>
+        {/* YENİ KART: Dijital Anahtar (QR Geçiş Sistemi) */}
+        <div className="card p-5 flex flex-col items-center justify-center text-center animate-fade-in-up relative overflow-hidden group">
+          <div className="absolute inset-0 opacity-10 bg-gradient-to-br from-transparent to-black pointer-events-none"></div>
+          <h3 className="text-xs font-bold uppercase tracking-wider mb-4" style={{ color: 'var(--text-muted)' }}>
+            Dijital Anahtar Geçişi
+          </h3>
+          <div className={`p-1.5 rounded-2xl transition-all duration-500 shadow-xl ${currentResidentData.duesAmount > 0 ? 'bg-gradient-to-br from-red-500 to-orange-400' : 'bg-gradient-to-br from-green-400 to-emerald-600'}`}>
+            <div className="bg-white p-3 rounded-xl flex items-center justify-center relative overflow-hidden">
+              <QrCode size={64} className={currentResidentData.duesAmount > 0 ? 'text-red-600' : 'text-emerald-700'} strokeWidth={1.5} />
+              {/* Scanline Animation Effect - CSS'de animate-scanline tanımlanacak veya JS style ile eklenecek */}
+              <div 
+                className="absolute left-0 w-full h-0.5 bg-current blur-[1px] shadow-[0_0_8px_currentColor] opacity-70" 
+                style={{ 
+                  color: currentResidentData.duesAmount > 0 ? '#ef4444' : '#10b981',
+                  animation: 'scanline 2s linear infinite'
+                }}
+              ></div>
             </div>
-            <button
-              onClick={() => setShowReserveModal(true)}
-              className="btn"
-              style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
-            >
-              <Plus size={13} /> Rezervasyon Yap
-            </button>
           </div>
-          <div className="space-y-2.5 overflow-y-auto flex-1" style={{ maxHeight: '180px' }}>
-            {userReservations.length === 0 ? (
-              <div className="empty-state">
-                <Calendar size={28} />
-                <p>Aktif rezervasyonunuz bulunmuyor.</p>
+          
+          <div className="mt-4">
+            <span className={`text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest flex items-center gap-1.5 justify-center ${currentResidentData.duesAmount > 0 ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-700'}`}>
+              {currentResidentData.duesAmount > 0 ? <AlertTriangle size={12}/> : <Check size={12}/>}
+              {currentResidentData.duesAmount > 0 ? 'Geçişler Kısıtlı' : 'Geçiş İzni Aktif'}
+            </span>
+          </div>
+          <p className="text-[9px] mt-2 leading-relaxed px-2" style={{ color: 'var(--text-muted)' }}>
+            {currentResidentData.duesAmount > 0 
+              ? 'Mevcut borcunuzdan dolayı sosyal tesislere girişiniz sınırlandırılmıştır.' 
+              : 'Turnike ve tesis kapılarına okutarak giriş yapabilirsiniz.'}
+          </p>
+        </div>
+
+        {/* Kart 5: Kargo Takip (Küçültülmüş) */}
+        <div className="card p-5 flex flex-col animate-fade-in-up" style={{ minHeight: '220px' }}>
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Kargolarım</h3>
+          </div>
+          <div className="space-y-2 flex-1 overflow-y-auto">
+            {userPackages.length === 0 ? (
+              <div className="empty-state h-full">
+                <Check size={20} className="mb-1" />
+                <p>Kargo yok.</p>
               </div>
             ) : (
-              userReservations.map(res => (
-                <div
-                  key={res.id}
-                  className="flex items-center justify-between p-3 rounded-xl group transition-all"
-                  style={{ background: 'var(--bg-page)' }}
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold"
-                      style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
-                    >
-                      {res.facility[0]}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{res.facility}</p>
-                      <p className="text-[10px] flex items-center gap-1 mt-0.5" style={{ color: 'var(--text-muted)' }}>
-                        <Clock size={9} /> {res.date} • {res.timeSlot}
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => cancelReservation(res.id)}
-                    className="p-1.5 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-                    style={{ color: 'var(--text-muted)' }}
-                    onMouseEnter={e => e.currentTarget.style.background = '#FEE2E2'}
-                    onMouseLeave={e => e.currentTarget.style.background = ''}
-                    title="İptal Et"
-                  >
-                    <Trash2 size={14} />
-                  </button>
+              userPackages.map(pkg => (
+                <div key={pkg.id} className="p-2 rounded-lg border border-[var(--border-light)] text-[10px]">
+                  <p className="font-bold">{pkg.carrier}</p>
+                  <p style={{ color: 'var(--text-muted)' }}>{pkg.status}</p>
                 </div>
               ))
             )}
           </div>
         </div>
 
-        {/* Kart 6: Takvim */}
-        <div className="card p-5 animate-fade-in-up">
+        {/* Kart 6: Rezervasyonlar (Küçültülmüş) */}
+        <div className="card p-5 flex flex-col animate-fade-in-up" style={{ minHeight: '220px' }}>
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-              Hizmet Takvimi
-            </h3>
-            <span className="text-[10px] font-bold" style={{ color: 'var(--accent)' }}>Haziran 2026</span>
+            <h3 className="text-sm font-bold" style={{ color: 'var(--text-primary)' }}>Rezervasyon</h3>
           </div>
-          <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold mb-2" style={{ color: 'var(--text-muted)' }}>
-            {['Pz', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa'].map(d => <div key={d}>{d}</div>)}
-          </div>
-          <div className="grid grid-cols-7 gap-1 text-center text-[10px]" style={{ color: 'var(--text-secondary)' }}>
-            {[28,29,30,31].map(d => <div key={d} className="opacity-30">{d}</div>)}
-            {[1,2,3].map(d => <div key={d}>{d}</div>)}
-            {[4,5,6].map(d => <div key={d}>{d}</div>)}
-            <div
-              className="w-6 h-6 rounded-full mx-auto flex items-center justify-center font-bold text-white"
-              style={{ background: 'var(--primary)' }}
-            >7</div>
-            {[8,9,10,11,12,13,14,15,16,17].map(d => <div key={d}>{d}</div>)}
-          </div>
-          <div className="flex gap-2 items-center mt-4 pt-3 border-t text-[10px]" style={{ borderColor: 'var(--border-light)', color: 'var(--text-muted)' }}>
-            <div className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ background: 'var(--primary)' }} />
-            <span>7 Haziran – Rezerve Gün</span>
+          <div className="space-y-2 flex-1 overflow-y-auto">
+            {userReservations.length === 0 ? (
+              <div className="empty-state h-full">
+                <Calendar size={20} className="mb-1" />
+                <p>Rezervasyon yok.</p>
+              </div>
+            ) : (
+              userReservations.map(res => (
+                <div key={res.id} className="p-2 rounded-lg border border-[var(--border-light)] text-[10px]">
+                  <p className="font-bold">{res.facility}</p>
+                  <p style={{ color: 'var(--text-muted)' }}>{res.date}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
 
       {/* MODAL 1: Aidat Ödeme */}
       {showPaymentModal && (
-        <div className="modal-overlay">
-          <div className="modal-box max-w-sm p-6">
-            <button onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 p-1.5 rounded-lg hover:bg-[var(--bg-page)] transition-colors">
-              <X size={18} style={{ color: 'var(--text-muted)' }} />
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="bg-[var(--bg-card)] rounded-3xl max-w-md w-full overflow-hidden shadow-2xl relative animate-in slide-in-from-bottom-4 duration-500 border border-white/10">
+            <button onClick={() => setShowPaymentModal(false)} className="absolute top-4 right-4 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-[var(--bg-page)] hover:bg-gray-200 text-[var(--text-primary)] transition-all">
+              <X size={18} />
             </button>
 
             {paymentSuccess ? (
-              <div className="flex flex-col items-center py-8 space-y-4 animate-scale-in">
-                <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
-                  <Check size={36} className="text-green-500" />
+              <div className="flex flex-col items-center py-12 space-y-5 animate-in zoom-in duration-500">
+                <div className="w-24 h-24 rounded-full bg-green-500/20 flex items-center justify-center relative">
+                   <div className="absolute inset-0 rounded-full border-4 border-green-500/30 animate-ping" />
+                  <Check size={48} className="text-green-500 relative z-10" />
                 </div>
-                <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>Ödeme Başarılı!</h3>
-                <p className="text-xs text-center" style={{ color: 'var(--text-muted)' }}>
-                  Ödemeniz alındı ve aidat borcunuz kapatıldı.
+                <h3 className="text-2xl font-extrabold text-[var(--text-primary)]">Ödeme Başarılı!</h3>
+                <p className="text-sm text-center text-[var(--text-muted)] max-w-[250px]">
+                  {totalDue.toLocaleString('tr-TR')} TL tutarındaki ödemeniz başarıyla alındı ve aidat borcunuz kapatıldı.
                 </p>
               </div>
             ) : (
-              <>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center">
-                    <CreditCard size={20} className="text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>Aidat Borcu Öde</h3>
-                    <p className="text-xs" style={{ color: 'var(--text-muted)' }}>Ana Borcu: {duesAmount.toLocaleString('tr-TR')} TL</p>
-                    {lateInterest > 0 && (
-                      <p className="text-xs text-amber-600 font-semibold">
-                        + Gecikme Faizi: {lateInterest.toLocaleString('tr-TR')} TL → Toplam: {totalDue.toLocaleString('tr-TR')} TL
+              <div className="p-6 sm:p-8">
+                <div className="text-center mb-8">
+                  <h3 className="text-xl font-black text-[var(--text-primary)] mb-1">Güvenli Ödeme</h3>
+                  <p className="text-xs text-[var(--text-muted)] font-medium">Toplam Ödenecek Tutar: <span className="text-blue-500 font-bold text-sm">{totalDue.toLocaleString('tr-TR')} TL</span></p>
+                  {lateInterest > 0 && (
+                    <p className="text-[10px] text-amber-500 font-semibold mt-1">İçerisinde {lateInterest.toLocaleString('tr-TR')} TL gecikme faizi bulunmaktadır.</p>
+                  )}
+                </div>
+
+                {/* Glassmorphism Kredi Kartı Görseli */}
+                <div className="w-full h-48 rounded-2xl p-5 mb-8 relative overflow-hidden shadow-xl transform transition-transform hover:scale-105 duration-300"
+                     style={{
+                       background: 'linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)',
+                     }}>
+                  {/* Dekoratif Çemberler */}
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
+                  <div className="absolute bottom-0 left-0 w-24 h-24 bg-blue-400/20 rounded-full blur-xl -ml-8 -mb-8" />
+                  
+                  <div className="relative z-10 flex flex-col justify-between h-full text-white">
+                    <div className="flex justify-between items-center">
+                      <CreditCard size={28} className="text-white/80 drop-shadow-md" />
+                      <div className="flex gap-1.5">
+                        <div className="w-8 h-5 rounded-md bg-white/20 backdrop-blur-sm border border-white/10" />
+                        <div className="w-5 h-5 rounded-full bg-red-500/80 mix-blend-multiply" />
+                        <div className="w-5 h-5 rounded-full bg-yellow-500/80 mix-blend-multiply -ml-3" />
+                      </div>
+                    </div>
+                    
+                    <div className="mt-4">
+                      <p className="text-[10px] text-white/60 font-semibold uppercase tracking-widest mb-1">Kart Numarası</p>
+                      <p className="text-xl sm:text-2xl font-mono font-medium tracking-widest text-white/90 drop-shadow-sm">
+                        {paymentData.cardNumber || '•••• •••• •••• ••••'}
                       </p>
-                    )}
+                    </div>
+
+                    <div className="flex justify-between items-end mt-2">
+                      <div>
+                        <p className="text-[9px] text-white/60 font-semibold uppercase tracking-widest">Kart Sahibi</p>
+                        <p className="text-sm font-bold uppercase tracking-wider text-white/90 truncate max-w-[150px] drop-shadow-sm">
+                          {paymentData.name || 'AD SOYAD'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[9px] text-white/60 font-semibold uppercase tracking-widest">SKT</p>
+                        <p className="text-sm font-bold tracking-wider text-white/90 drop-shadow-sm">
+                          {paymentData.expiry || 'AA/YY'}
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
                 <form onSubmit={handlePaymentSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-secondary)' }}>Kart Sahibinin Adı</label>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider ml-1">Kart Sahibinin Adı</label>
                     <input type="text" required value={paymentData.name}
                       onChange={e => setPaymentData({ ...paymentData, name: e.target.value })}
-                      placeholder="Ad Soyad" className="input" />
+                      placeholder="Kart üzerindeki isim" 
+                      className="w-full bg-[var(--bg-page)] border border-[var(--border-light)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium" />
                   </div>
-                  <div>
-                    <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-secondary)' }}>Kart Numarası</label>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider ml-1">Kart Numarası</label>
                     <input type="text" required maxLength="19" value={paymentData.cardNumber}
                       onChange={e => setPaymentData({ ...paymentData, cardNumber: formatCardNumber(e.target.value) })}
-                      placeholder="0000 0000 0000 0000" className="input font-mono" />
+                      placeholder="0000 0000 0000 0000" 
+                      className="w-full bg-[var(--bg-page)] border border-[var(--border-light)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-secondary)' }}>Son Kullanma</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider ml-1">Son Kullanma</label>
                       <input type="text" required maxLength="5" placeholder="AA/YY" value={paymentData.expiry}
                         onChange={e => setPaymentData({ ...paymentData, expiry: e.target.value })}
-                        className="input text-center" />
+                        className="w-full bg-[var(--bg-page)] border border-[var(--border-light)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all" />
                     </div>
-                    <div>
-                      <label className="block text-xs font-semibold mb-1.5" style={{ color: 'var(--text-secondary)' }}>CVC / CVV</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-bold text-[var(--text-secondary)] uppercase tracking-wider ml-1">CVC / CVV</label>
                       <input type="password" required maxLength="3" placeholder="•••" value={paymentData.cvv}
                         onChange={e => setPaymentData({ ...paymentData, cvv: e.target.value })}
-                        className="input text-center" />
+                        className="w-full bg-[var(--bg-page)] border border-[var(--border-light)] text-[var(--text-primary)] rounded-xl px-4 py-3 text-sm text-center focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-mono" />
                     </div>
                   </div>
-                  <button type="submit" disabled={paymentLoading} className="btn btn-accent w-full justify-center py-3 text-sm mt-2">
-                    {paymentLoading
-                      ? <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      : `Ödemeyi Tamamla (${totalDue.toLocaleString('tr-TR')} TL)`
-                    }
+                  <button type="submit" disabled={paymentLoading} 
+                          className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white rounded-xl py-3.5 mt-4 font-bold text-sm shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none">
+                    {paymentLoading ? (
+                      <div className="flex items-center justify-center gap-2">
+                         <span className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                         <span>İşleniyor...</span>
+                      </div>
+                    ) : (
+                      <span>{totalDue.toLocaleString('tr-TR')} TL Ödemeyi Tamamla</span>
+                    )}
                   </button>
                 </form>
-              </>
+              </div>
             )}
           </div>
         </div>

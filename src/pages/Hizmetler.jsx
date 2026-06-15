@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { 
   Calendar, Clock, User, Dumbbell, Car, Users, Info, 
-  Trash2, X, Plus, AlertCircle, CheckCircle 
+  Trash2, X, Plus, AlertCircle, CheckCircle, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { AppContext } from '../context/AppContext';
 
@@ -16,23 +16,30 @@ export default function Hizmetler() {
   const [bookingError, setBookingError] = useState('');
   const [bookingSuccess, setBookingSuccess] = useState(false);
 
+  // Takvim İçin Seçili Tarih
+  const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+
   // Rezervasyon Form State'i
   const [formData, setFormData] = useState({
-    date: new Date().toISOString().split('T')[0],
+    date: selectedDate,
     timeSlot: '10:00 - 12:00',
-    spotNumber: 'Spot 1' // otopark için
+    spotNumber: 'Spot 1'
   });
 
-  // Tesis Tanımları
+  const timeSlots = [
+    "08:00 - 10:00", "10:00 - 12:00", "12:00 - 14:00", 
+    "14:00 - 16:00", "16:00 - 18:00", "18:00 - 20:00", "20:00 - 22:00"
+  ];
+
   const facilities = [
     {
       id: 'gym',
       name: 'Spor Salonu',
       icon: Dumbbell,
-      capacity: 'Maks. 10 Kişi (Aynı Anda)',
+      capacity: 'Maks. 10 Kişi',
       hours: '08:00 - 22:00',
       status: 'Açık',
-      description: 'Koşu bantları, ağırlık üniteleri ve kardiyo aletleri yer almaktadır. Giriş ücretsizdir.'
+      description: 'Koşu bantları, ağırlık üniteleri ve kardiyo.'
     },
     {
       id: 'parking',
@@ -41,7 +48,7 @@ export default function Hizmetler() {
       capacity: '10 Araçlık Kapasite',
       hours: '24 Saat',
       status: 'Açık',
-      description: 'Misafirlerinizin araçları için ayrılmış park alanlarıdır. Rezervasyon gereklidir.'
+      description: 'Misafir araçları için ayrılmış park alanları.'
     },
     {
       id: 'meeting',
@@ -50,34 +57,39 @@ export default function Hizmetler() {
       capacity: 'Maks. 15 Kişi',
       hours: '09:00 - 21:00',
       status: 'Açık',
-      description: 'Projeksiyon cihazı, toplantı masası ve tahta bulunan ortak çalışma ve toplantı alanı.'
+      description: 'Projeksiyon ve toplantı masası.'
     }
   ];
 
-  // Rezervasyon Yapma Buton Klik
-  const handleOpenBookModal = (facName) => {
+  // Tarih Değiştirme Yardımcıları
+  const changeDate = (days) => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + days);
+    const newDateStr = d.toISOString().split('T')[0];
+    setSelectedDate(newDateStr);
+    setFormData(prev => ({...prev, date: newDateStr}));
+  };
+
+  const handleOpenBookModal = (facName, prefilledTime = '10:00 - 12:00') => {
     setSelectedFacility(facName);
+    setFormData(prev => ({...prev, timeSlot: prefilledTime}));
     setBookingError('');
     setBookingSuccess(false);
     setShowBookModal(true);
   };
 
-  // Rezervasyon Gönderme
   const handleBookSubmit = (e) => {
     e.preventDefault();
     setBookingError('');
     setBookingSuccess(false);
 
-    // Çakışma Kontrolü
     const isConflict = reservations.some(res => {
-      // Otopark için hem tarih, saat hem de spot numarası çakışmalı
       if (selectedFacility === 'Misafir Otoparkı') {
         return res.facility === selectedFacility &&
                res.date === formData.date &&
                res.timeSlot === formData.timeSlot &&
                res.spotNumber === formData.spotNumber;
       }
-      // Spor salonu ve toplantı odası için genel tarih/saat çakışması
       return res.facility === selectedFacility &&
              res.date === formData.date &&
              res.timeSlot === formData.timeSlot;
@@ -85,9 +97,9 @@ export default function Hizmetler() {
 
     if (isConflict) {
       if (selectedFacility === 'Misafir Otoparkı') {
-        setBookingError(`${formData.spotNumber} seçtiğiniz tarih ve saatte dolu. Lütfen başka bir spot veya saat seçin.`);
+        setBookingError(`${formData.spotNumber} seçtiğiniz tarih ve saatte dolu.`);
       } else {
-        setBookingError(`Seçtiğiniz tarih ve saat diliminde bu alan rezerve edilmiştir. Lütfen farklı bir saat seçin.`);
+        setBookingError(`Seçtiğiniz tarih ve saat diliminde bu alan rezerve edilmiştir.`);
       }
       return;
     }
@@ -106,11 +118,38 @@ export default function Hizmetler() {
     }, 1500);
   };
 
-  // İptal Buton Klik
   const handleCancelClick = (id) => {
     if (window.confirm('Bu rezervasyonu iptal etmek istediğinize emin misiniz?')) {
       cancelReservation(id);
     }
+  };
+
+  // İlgili günün rezervasyonlarını getir
+  const dayReservations = reservations.filter(r => r.date === selectedDate);
+
+  // Hücre durumu hesaplama
+  const getSlotStatus = (facilityName, slot) => {
+    // Otopark spot bazlı çalıştığı için takvimde doluluk hesabı farklı (tamamen dolu mu?)
+    if (facilityName === 'Misafir Otoparkı') {
+      const parkRes = dayReservations.filter(r => r.facility === facilityName && r.timeSlot === slot);
+      if (parkRes.length >= 10) return { status: 'full' };
+      const myRes = parkRes.find(r => r.residentName === currentUser.name || r.unit === currentUser.unit);
+      if (myRes) return { status: 'mine', res: myRes };
+      return { status: 'available' };
+    }
+
+    const res = dayReservations.find(r => r.facility === facilityName && r.timeSlot === slot);
+    if (!res) return { status: 'available' };
+    
+    if (res.residentName === currentUser.name || res.unit === currentUser.unit) {
+      return { status: 'mine', res };
+    }
+    
+    if (currentRole === 'yonetici') {
+      return { status: 'admin_view', res };
+    }
+    
+    return { status: 'booked', res };
   };
 
   return (
@@ -118,107 +157,150 @@ export default function Hizmetler() {
       {/* Başlık */}
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-[var(--text-primary)]">Ortak Alan Hizmet Takibi</h2>
-          <p className="text-xs text-[var(--text-muted)]">Ortak sosyal tesisler, spor salonu ve misafir otoparkı rezervasyonlarınızı yönetin</p>
+          <h2 className="text-2xl font-bold text-[var(--text-primary)]">Ortak Alan Hizmetleri</h2>
+          <p className="text-xs text-[var(--text-muted)]">Tesisleri inceleyin ve size en uygun saatleri interaktif takvimden ayırın.</p>
         </div>
       </div>
 
-      {/* Tesisler Listesi (Kart Grid) */}
+      {/* Tesisler Listesi (Özet Kartlar) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {facilities.map(fac => {
           const IconComponent = fac.icon;
           return (
-            <div key={fac.id} className="bg-[var(--bg-card)] rounded-2xl p-6 shadow-sm border border-[var(--border-light)] flex flex-col justify-between hover:shadow-md transition-shadow">
-              <div className="space-y-4">
-                <div className="flex justify-between items-start">
-                  <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
-                    <IconComponent size={24} />
-                  </div>
-                  <span className="text-xs font-bold px-2 py-0.5 bg-green-50 text-green-600 rounded-full">
-                    {fac.status}
-                  </span>
+            <div key={fac.id} className="bg-[var(--bg-card)] rounded-2xl p-5 shadow-sm border border-[var(--border-light)] flex flex-col justify-between hover:border-blue-300 transition-colors cursor-pointer" onClick={() => handleOpenBookModal(fac.name)}>
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-blue-50 text-blue-600 rounded-xl">
+                  <IconComponent size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[var(--text-primary)]">{fac.name}</h3>
-                  <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">{fac.description}</p>
-                </div>
-                <div className="border-t border-[var(--border-light)] pt-3 space-y-1.5 text-xs text-[var(--text-secondary)]">
-                  <div className="flex justify-between"><span>Kapasite:</span><span className="font-semibold text-[var(--text-primary)]">{fac.capacity}</span></div>
-                  <div className="flex justify-between"><span>Hizmet Saatleri:</span><span className="font-semibold text-[var(--text-primary)]">{fac.hours}</span></div>
+                  <h3 className="text-sm font-bold text-[var(--text-primary)]">{fac.name}</h3>
+                  <p className="text-[10px] text-[var(--text-muted)]">{fac.capacity} • {fac.hours}</p>
                 </div>
               </div>
-              <button
-                onClick={() => handleOpenBookModal(fac.name)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl text-xs transition-colors mt-6"
-              >
-                Rezervasyon Yap
-              </button>
             </div>
           );
         })}
       </div>
 
-      {/* Rezervasyon Listesi Kartı */}
+      {/* İNTERAKTİF TAKVİM ARAYÜZÜ */}
       <div className="bg-[var(--bg-card)] rounded-2xl shadow-sm border border-[var(--border-light)] overflow-hidden">
-        <div className="p-5 border-b border-[var(--border-light)]">
-          <h3 className="text-base font-bold text-[var(--text-primary)]">Güncel Rezervasyon Listesi</h3>
-          <p className="text-xs text-[var(--text-muted)]">Sitedeki tüm ortak alan kullanım listesi</p>
+        {/* Takvim Üst Barı - Tarih Seçici */}
+        <div className="p-4 border-b border-[var(--border-light)] flex flex-col sm:flex-row justify-between items-center gap-4 bg-[var(--bg-subtle)]">
+          <div>
+            <h3 className="text-sm font-bold text-[var(--text-primary)]">Etkileşimli Rezervasyon Takvimi</h3>
+            <p className="text-[10px] text-[var(--text-muted)]">Seçilen tarihteki doluluk durumunu görün ve kutulara tıklayarak rezervasyon yapın.</p>
+          </div>
+          <div className="flex items-center gap-4 bg-[var(--bg-card)] px-2 py-1.5 rounded-xl border border-[var(--border-light)] shadow-sm">
+            <button onClick={() => changeDate(-1)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
+              <ChevronLeft size={18}/>
+            </button>
+            <div className="flex items-center gap-2 font-bold text-sm text-[var(--text-primary)] min-w-[120px] justify-center">
+              <Calendar size={16} className="text-blue-600"/>
+              {new Date(selectedDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' })}
+            </div>
+            <button onClick={() => changeDate(1)} className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-500 transition-colors">
+              <ChevronRight size={18}/>
+            </button>
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-[var(--bg-subtle)] text-[var(--text-muted)] text-[10px] uppercase tracking-wider font-semibold border-b border-[var(--border-light)]">
-                <th className="px-6 py-4">Tesis</th>
-                <th className="px-6 py-4">Tarih</th>
-                <th className="px-6 py-4">Saat Aralığı</th>
-                <th className="px-6 py-4">Daire / Sakin</th>
-                <th className="px-6 py-4">Detay</th>
-                <th className="px-6 py-4 text-right">İptal</th>
-              </tr>
-            </thead>
-            <tbody className="text-xs text-[var(--text-primary)] divide-y divide-[var(--border-light)]">
-              {reservations.length === 0 ? (
-                <tr>
-                  <td colSpan="6" className="text-center py-10 text-[var(--text-muted)] italic">
-                    Kayıtlı rezervasyon bulunmuyor.
-                  </td>
-                </tr>
-              ) : (
-                reservations.map(res => {
-                  const isOwnBooking = res.residentName === currentUser.name || res.unit === currentUser.unit;
-                  const canCancel = isOwnBooking || currentRole === 'yonetici';
-                  
-                  return (
-                    <tr key={res.id} className="hover:bg-[var(--bg-subtle)] transition-colors">
-                      <td className="px-6 py-4 font-bold text-[var(--text-primary)]">{res.facility}</td>
-                      <td className="px-6 py-4">{res.date}</td>
-                      <td className="px-6 py-4">{res.timeSlot}</td>
-                      <td className="px-6 py-4 font-medium">
-                        {res.residentName} ({res.unit})
-                      </td>
-                      <td className="px-6 py-4 text-[var(--text-muted)] italic">
-                        {res.spotNumber ? `Park Yeri: ${res.spotNumber}` : 'Ortak Kullanım'}
-                      </td>
-                      <td className="px-6 py-4 text-right">
-                        {canCancel ? (
-                          <button
-                            onClick={() => handleCancelClick(res.id)}
-                            className="p-1.5 text-[var(--text-muted)] hover:text-red-500 hover:bg-red-50 rounded transition-all"
-                            title="Rezervasyonu İptal Et"
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        ) : (
-                          <span className="text-[10px] text-[var(--text-muted)] font-semibold px-2 py-0.5 bg-[var(--bg-subtle)] rounded">Yetki Yok</span>
-                        )}
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
+        {/* Takvim Grid'i */}
+        <div className="p-6 overflow-x-auto">
+          <div className="min-w-[800px]">
+            {/* Grid Başlıkları (Zaman Dilimleri) */}
+            <div className="flex mb-4">
+              <div className="w-40 shrink-0"></div>
+              <div className="flex-1 grid grid-cols-7 gap-2">
+                {timeSlots.map((slot, i) => (
+                  <div key={i} className="text-center text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-wider">
+                    {slot.split('-')[0]}<br/><span className="text-[9px] opacity-70">başlangıç</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tesis Satırları */}
+            <div className="space-y-4">
+              {facilities.map(fac => (
+                <div key={fac.id} className="flex items-center">
+                  {/* Tesis Adı Sol Sütun */}
+                  <div className="w-40 shrink-0 pr-4">
+                    <div className="text-xs font-bold text-[var(--text-primary)]">{fac.name}</div>
+                    <div className="text-[9px] text-[var(--text-muted)] mt-0.5">{fac.capacity}</div>
+                  </div>
+
+                  {/* Saat Slotları */}
+                  <div className="flex-1 grid grid-cols-7 gap-2">
+                    {timeSlots.map((slot, i) => {
+                      const { status, res } = getSlotStatus(fac.name, slot);
+                      
+                      let slotClasses = "h-14 rounded-xl border flex flex-col items-center justify-center p-1 text-center transition-all cursor-pointer relative overflow-hidden group";
+                      let slotContent = null;
+
+                      if (status === 'available') {
+                        slotClasses += " border-[var(--border-light)] bg-[var(--bg-page)] hover:border-blue-400 hover:bg-blue-50 text-[var(--text-muted)] hover:text-blue-600";
+                        slotContent = <span className="text-[10px] font-semibold opacity-0 group-hover:opacity-100 transition-opacity">Boş<br/>Seç</span>;
+                      } else if (status === 'mine') {
+                        slotClasses += " border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm";
+                        slotContent = (
+                          <>
+                            <span className="text-[10px] font-bold z-10">Benim</span>
+                            <span className="text-[9px] z-10 opacity-80 truncate px-1 max-w-full">{fac.name === 'Misafir Otoparkı' ? res.spotNumber : 'Rezervasyonum'}</span>
+                            <div className="absolute inset-0 bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold z-20">
+                              İptal Et
+                            </div>
+                          </>
+                        );
+                      } else if (status === 'booked') {
+                        slotClasses += " border-red-100 bg-red-50 text-red-400 cursor-not-allowed";
+                        slotContent = <span className="text-[10px] font-semibold">Dolu</span>;
+                      } else if (status === 'admin_view') {
+                         slotClasses += " border-amber-200 bg-amber-50 text-amber-700 shadow-sm";
+                         slotContent = (
+                          <>
+                            <span className="text-[9px] font-bold z-10 truncate px-1 max-w-full">{res.residentName}</span>
+                            <span className="text-[8px] z-10 opacity-80">{res.unit}</span>
+                            <div className="absolute inset-0 bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold z-20">
+                              İptal Et
+                            </div>
+                          </>
+                        );
+                      } else if (status === 'full') {
+                        slotClasses += " border-red-100 bg-red-50 text-red-400 cursor-not-allowed";
+                        slotContent = <span className="text-[10px] font-semibold">Kapasite<br/>Dolu</span>;
+                      }
+
+                      return (
+                        <div 
+                          key={i} 
+                          className={slotClasses}
+                          onClick={() => {
+                            if (status === 'available') {
+                              handleOpenBookModal(fac.name, slot);
+                            } else if (status === 'mine' || status === 'admin_view') {
+                              handleCancelClick(res.id);
+                            }
+                          }}
+                          title={slot}
+                        >
+                          {status === 'available' && <div className="absolute inset-0 bg-[var(--bg-subtle)] group-hover:opacity-0 transition-opacity"></div>}
+                          {slotContent}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </div>
+            
+            {/* Lejant (Açıklamalar) */}
+            <div className="mt-8 flex items-center justify-center gap-6 text-[10px] font-medium text-[var(--text-muted)]">
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-[var(--bg-page)] border border-[var(--border-light)]"></div> Boş Slot</div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-emerald-50 border border-emerald-200"></div> Sizin Rezervasyonunuz</div>
+              <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded bg-red-50 border border-red-100"></div> Dolu (Başkasına Ait)</div>
+            </div>
+
+          </div>
         </div>
       </div>
 
@@ -238,13 +320,13 @@ export default function Hizmetler() {
                 <div className="w-14 h-14 bg-green-100 text-green-600 rounded-full flex items-center justify-center text-3xl font-bold animate-bounce">
                   <CheckCircle size={28} />
                 </div>
-                <h3 className="text-base font-bold text-[var(--text-primary)]">Rezervasyon Yapıldı!</h3>
-                <p className="text-xs text-[var(--text-muted)] text-center">Tesis yeriniz ayrıldı. Rezervasyon listenizde görebilirsiniz.</p>
+                <h3 className="text-base font-bold text-[var(--text-primary)]">Rezervasyon Onaylandı!</h3>
+                <p className="text-xs text-[var(--text-muted)] text-center">Takvim üzerinde yeriniz işaretlendi.</p>
               </div>
             ) : (
               <>
-                <h3 className="text-base font-bold text-[var(--text-primary)] mb-1">{selectedFacility} Rezervasyonu</h3>
-                <p className="text-xs text-[var(--text-muted)] mb-5">Lütfen rezervasyon tarihini ve saat aralığını belirleyin.</p>
+                <h3 className="text-base font-bold text-[var(--text-primary)] mb-1">{selectedFacility}</h3>
+                <p className="text-xs text-[var(--text-muted)] mb-5">Seçilen Tarih: {new Date(formData.date).toLocaleDateString('tr-TR')}</p>
 
                 <form onSubmit={handleBookSubmit} className="space-y-4">
                   <div>
@@ -266,19 +348,15 @@ export default function Hizmetler() {
                       onChange={(e) => setFormData({ ...formData, timeSlot: e.target.value })}
                       className="w-full text-sm border border-[var(--border)] rounded-lg p-2.5 outline-none focus:border-blue-500 bg-[var(--bg-page)] text-[var(--text-primary)]"
                     >
-                      <option value="08:00 - 10:00">08:00 - 10:00</option>
-                      <option value="10:00 - 12:00">10:00 - 12:00</option>
-                      <option value="12:00 - 14:00">12:00 - 14:00</option>
-                      <option value="14:00 - 16:00">14:00 - 16:00</option>
-                      <option value="16:00 - 18:00">16:00 - 18:00</option>
-                      <option value="18:00 - 20:00">18:00 - 20:00</option>
-                      <option value="20:00 - 22:00">20:00 - 22:00</option>
+                      {timeSlots.map(slot => (
+                        <option key={slot} value={slot}>{slot}</option>
+                      ))}
                     </select>
                   </div>
 
                   {selectedFacility === 'Misafir Otoparkı' && (
                     <div>
-                      <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Park Yeri (Spot Seçimi)</label>
+                      <label className="block text-xs font-semibold text-[var(--text-secondary)] mb-1">Park Yeri</label>
                       <select
                         value={formData.spotNumber}
                         onChange={(e) => setFormData({ ...formData, spotNumber: e.target.value })}
